@@ -1,17 +1,20 @@
 import { Component } from "react";
+import { toast,ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import EachVariableData from "../EachVariableData";
 
 class Apifetch extends Component {
   state = {
     listdata: [],
     listSortData: [],
+    alerts: [],
   };
 
   componentDidMount() {
     this.getapi();
     setTimeout(() => {
       window.location.reload(1);
-    }, 10000);
+    }, 20000);
   }
 
   getapi = async () => {
@@ -22,7 +25,6 @@ class Apifetch extends Component {
 
     let response = await fetch(apiurl, options);
     const fetchedData = await response.json();
-    // console.log(response);
     console.log(fetchedData);
 
     const usdtData = fetchedData.filter(
@@ -35,25 +37,40 @@ class Apifetch extends Component {
 
     console.log("users", usdtData);
 
+    // filter out the elements where priceChangePercent is above 5
+    const alertData = usdtData.filter((data) => data.priceChangePercent > 20);
+
+    // update the alerts state with the alertData
+    this.setState({ alerts: alertData });
+
+    // show the alerts
+    if (alertData.length > 0) {
+      alertData.forEach((each) => {
+        toast.info(
+          `${each.symbol} ${each.lastPrice} has a price change of ${each.priceChangePercent}%`, {
+            position: toast.POSITION.TOP_RIGHT,
+            autoClose:10000
+          });
+      });
+    }
+    
+    // setTimeout(() => {
+    //   this.setState({ alerts: [] });
+    // }, 10000);
+
     const a = usdtData.sort((a, b) => {
-      // if (a.priceChangePercent > b.priceChangePercent) {
       return a.priceChangePercent - b.priceChangePercent;
-      // }
-      // if (a.priceChangePercent > b.priceChangePercent) {
-      //   return 1;
-      // }
-      // return 0;
     });
 
     const positiveToNegative = a.reverse();
 
-    console.log("abccccc");
     this.setState({ listdata: a });
   };
-
+  
   render() {
     return (
       <div>
+        <ToastContainer />
         <ul className="products-list">
           {this.state.listdata.map((eachdata, index) => (
             <EachVariableData productData={eachdata} key={index} />
