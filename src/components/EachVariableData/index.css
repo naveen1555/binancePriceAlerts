@@ -1,0 +1,12 @@
+.product-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+
+
+@media screen and (max-width:567px) {
+  p{
+    font-size: 8px;
+  }
+}
